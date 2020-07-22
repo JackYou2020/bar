@@ -23,7 +23,11 @@ node('test-jnlp') {
         sh """
           docker rm -f bar
           docker run -p 4000:8080 --name bar -d jackyou2020/test-devops:v1
-          curl -lsv localhost:4000?name=devops
+          output=$(curl -lsv localhost:4000?name=devops|grep 'Welcome, devops!')
+          if [ -z "$output" ];then
+             echo "there is no 'Welcome, devops' from web service!"
+             exit 1
+          fi
         """
     }
     stage('Push') {
