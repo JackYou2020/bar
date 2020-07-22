@@ -1,0 +1,9 @@
+node('test-jnlp') {
+    stage('Deploy bar with terraform') {
+        sh """
+          terraform init
+          terraform plan
+          terraform apply
+        """
+    }
+}

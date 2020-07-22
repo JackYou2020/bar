@@ -1,0 +1,39 @@
+node('test-jnlp') {
+    stage('Prepare') {
+        echo "Prepare Stage"
+        checkout scm
+        script {
+            build_tag = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+            if (env.BRANCH_NAME != 'master') {
+                build_tag = "${env.BRANCH_NAME}-${build_tag}"
+            }
+        }
+    }
+    stage('Build') {
+        echo "Build Docker Image Stage"
+        sh """
+          docker build -t jackyou2020/test-devops:${build_tag} .
+          docker tag jackyou2020/test-devops:${build_tag} jackyou2020/test-devops:latest
+        """
+        
+    }
+    stage('Test BAR')
+    {   
+        echo "Verify BAR" 
+        sh """
+          docker rm -f bar
+          docker run -p 4000:8080 --name bar -d jackyou2020/test-devops:v1
+          curl -lsv localhost:4000?name=devops
+        """
+    }
+    stage('Push') {
+        echo "Push Docker Image Stage"
+        withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+            sh """
+              docker login -u ${dockerHubUser} -p ${dockerHubPassword}
+              docker push jackyou2020/test-devops:${build_tag}
+              docker push jackyou2020/test-devops:latest
+            """
+        }
+    }
+}
