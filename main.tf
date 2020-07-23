@@ -34,7 +34,7 @@ resource "kubernetes_deployment" "opsbar-deployment" {
           image_pull_policy = "IfNotPresent"
           name  = "opsbar"
           port {
-            container_port = 80
+            container_port = 8080
           }
         }
       }
@@ -116,6 +116,9 @@ resource "kubernetes_service" "opsbar-svc" {
   metadata {
     name      = "opsbar"
     namespace = "foo"
+    labels = {
+      app = "opsbar"
+    }
   }
   spec {
     selector = {
@@ -123,9 +126,8 @@ resource "kubernetes_service" "opsbar-svc" {
     }
     port {
       port        = 8080
-      target_port = 80
+      target_port = 8080
     }
-
     type = "NodePort"
   }
 }
