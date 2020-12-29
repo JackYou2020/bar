@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox1
+spec:
+  containers:
+  - name: busybox
+    image: busybox:1.32
+    command:
+      - sleep
+      - "3600"
+    imagePullPolicy: IfNotPresent
+  restartPolicy: Always
+---
+apiVersion: servicecatalog.ecp.com/v1
+data:
+  editable:
+    storage:
+      ceph:
+        cache_size: 50G
+        db_size: 20G
+        enabled: true
+  env:
+    cluster_id: 1
+  network:
+    vip:
+      mgmt: 192.168.10.2
+      public: 172.16.10.2
+      roller: 10.10.1.3
+kind: Config
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"servicecatalog.ecp.com/v1","data":{"editable":{"storage":{"ceph":{"cache_size":"50G","db_size":"20G","enabled":true}}},"env":{"cluster_id":1},"network":{"vip":{"mgmt":"192.168.10.2","public":"172.16.10.2","roller":"10.10.1.3"}}},"kind":"Config","metadata":{"annotations":{},"name":"clusterconfig","namespace":"ems"}}
+  creationTimestamp: "2020-08-26T12:25:07Z"
+  generation: 2
+  name: clusterconfig
